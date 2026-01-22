@@ -41,7 +41,7 @@ variable "resource_tags" {
 variable "network_config" {
   type        = tuple([string, string, number])
   description = "VNET CIDR, Subnet CIDR, Subnet Mask"
-  default     = ["10.0.0.0/16", "10.0.2.0/24", 24]
+  default     = ["10.0.0.0/16", "10.0.2.0", 24]
 }
 
 variable "allowed_vm_sizes" {
