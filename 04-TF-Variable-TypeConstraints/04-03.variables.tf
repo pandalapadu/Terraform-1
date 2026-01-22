@@ -59,7 +59,7 @@ variable "vm_config" {
     version   = string
   })
   default = {
-    size      = "Standard_DS1_v2"
+    size      = "Standard_B1s"
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
     sku       = "22_04-lts"
