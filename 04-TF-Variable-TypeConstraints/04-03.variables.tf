@@ -59,10 +59,10 @@ variable "vm_config" {
     version   = string
   })
   default = {
-    size      = "Standard_B1s"
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
+    size      = "Standard_D2s_v5"   # RHEL needs more CPU/RAM
+    publisher = "RedHat"
+    offer     = "RHEL"
+    sku       = "94_gen2"
     version   = "latest"
   }
 }
