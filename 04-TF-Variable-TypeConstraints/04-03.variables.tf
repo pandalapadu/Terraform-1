@@ -1,21 +1,9 @@
+########### Variable Primitive type constraints ###################
 variable "environment" {
   type        = string
   description = "Environment name"
   default     = "Dev"
 }
-
-variable "resource_group_name" {
-  type        = string
-  description = "Resource group name"
-  default     = "learning-resources"
-}
-
-variable "allowed_locations" {
-  type        = list(string)
-  description = "Allowed Azure locations"
-  default     = ["UK West", "North Europe", "East US"]
-}
-
 variable "storage_disk" {
   type        = number
   description = "OS disk size in GB"
@@ -26,6 +14,18 @@ variable "is_delete" {
   type        = bool
   description = "Delete OS disk on VM termination"
   default     = true
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "Resource group name"
+  default     = "learning-resources"
+}
+########### Variable Non Primitive type constraints ###################
+variable "allowed_locations" {
+  type        = list(string)
+  description = "Allowed Azure locations"
+  default     = ["UK West", "North Europe", "East US"]
 }
 
 variable "resource_tags" {
