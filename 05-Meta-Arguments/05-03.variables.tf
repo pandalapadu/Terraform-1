@@ -16,13 +16,13 @@ variable "resource_group_name" {
 }
 
 #for Hard coding values
-# variable "storage_account_name" {
-#   type = string
-#   default = "azdevopsvenkat"
-# }
-
-# For using dynamic
 variable "storage_account_name" {
-  type = list(string)
-  default = ["azdevopsvenkat", "azdevopsvenkat1", "azdevopsvenkat2"]
+  type = string
+  default = "azdevopsvenkat"
 }
+
+# # For using dynamic
+# variable "storage_account_name" {
+#   type = list(string)
+#   default = ["azdevopsvenkat", "azdevopsvenkat1", "azdevopsvenkat2"]
+# }
