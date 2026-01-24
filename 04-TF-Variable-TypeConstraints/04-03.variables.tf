@@ -21,7 +21,7 @@ variable "resource_group_name" {
   description = "Resource group name"
   default     = "learning-resources"
 }
-########### Variable Non Primitive type constraints ###################
+########### Variable Non Primitive type constraints ####################
 variable "allowed_locations" {
   type        = list(string)
   description = "Allowed Azure locations"
