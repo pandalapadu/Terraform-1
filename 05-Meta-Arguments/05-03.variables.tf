@@ -40,3 +40,12 @@ variable "dynamic_storage_accounts" {
     }
   ]
 }
+
+# ----- Dynamic Storage Accounts Variable (list of strings) -----
+variable "dynamic_storage_accounts_list" {
+  type    = list(string)
+  default = [
+    "listdynamicazdevopsvenkat",
+    "listdynamicazdevopsvenkat1"
+  ]
+}

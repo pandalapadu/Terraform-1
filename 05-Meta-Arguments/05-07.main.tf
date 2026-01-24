@@ -47,7 +47,25 @@ resource "azurerm_storage_account" "dynamic_storage" {
     environment = var.environment
   }
 }
+# =====================================================
+# 3️⃣ Dynamic Storage Accounts (list<string>)
+# =====================================================
+resource "azurerm_storage_account" "dynamic_storage_list" {
+  count = length(var.dynamic_storage_accounts_list)
 
+  name                     = var.dynamic_storage_accounts_list[count.index]
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  #allow_blob_public_access = false
+  min_tls_version          = "TLS1_2"
+
+  tags = {
+    environment = var.environment
+  }
+}
 # =====================================================
 # Outputs
 # =====================================================
@@ -57,4 +75,8 @@ output "static_storage_name" {
 
 output "dynamic_storage_names" {
   value = [for s in azurerm_storage_account.dynamic_storage : s.name]
+}
+
+output "dynamic_storage_list_names" {
+  value = [for s in azurerm_storage_account.dynamic_storage_list : s.name]
 }
