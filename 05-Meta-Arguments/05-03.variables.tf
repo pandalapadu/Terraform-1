@@ -45,7 +45,7 @@ variable "dynamic_storage_accounts" {
 variable "dynamic_storage_accounts_list" {
   type    = list(string)
   default = [
-    "listdynamicazdevopsvenkat",
-    "listdynamicazdevopsvenkat1"
+    "listdynamicvenkat",
+    "listdynamicvenkat1"
   ]
 }
