@@ -8,4 +8,46 @@ stages:
         pool:
          vmImage: ubuntu-latest
         steps:
-          - 
+        - task: TerraformTask@5
+          displayName: Terraform Init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            backendServiceArm: 'Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)'
+            backendAzureRmStorageAccountName: 'azdevopsvenkat'
+            backendAzureRmContainerName: 'terraform'
+            backendAzureRmKey: 'first.tfvars'
+
+        - task: TerraformTask@5
+          displayName: Terraform Validate
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+        - task: TerraformTask@5
+          displayName: Terraform Format
+          inputs:
+            provider: 'azurerm'
+            command: 'custom'
+            outputTo: 'console'
+            customCommand: 'fmt'
+            environmentServiceNameAzureRM: 'Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)'
+        - task: TerraformTask@5
+          displayName: Terraform Plan
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            commandOptions: '-out $(Build.SourcesDirectory)/tfplanfile'
+            environmentServiceNameAzureRM: 'Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)'
+        - task: ArchiveFiles@2
+          displayName: Archive Terraform plan files
+          inputs:
+            rootFolderOrFile: '$(Build.SourcesDirectory)/'
+            includeRootFolder: true
+            archiveType: 'zip'
+            archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+            replaceExistingArchive: true
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: '$(Build.BuildId)-build'
+            publishLocation: 'Container'
