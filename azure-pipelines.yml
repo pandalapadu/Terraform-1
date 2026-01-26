@@ -59,15 +59,12 @@ stages:
         #     publishLocation: 'Container'
         - publish: tfplan
           artifact: tfplan
-  - stage: Release
-    displayName: Terraform Apply
-    dependsOn: Build
-    condition: succeeded()
 
+  - stage: Release
+    dependsOn: Build
     jobs:
     - deployment: Apply
-      displayName: Apply to Azure
-      environment: prod   # 🔐 approval happens here
+      environment: prod
       strategy:
         runOnce:
           deploy:
@@ -81,10 +78,14 @@ stages:
             - download: current
               artifact: tfplan
 
+            - script: ls -R $(Pipeline.Workspace)/tfplan
+              displayName: List tfplan
+
             - task: TerraformTask@5
               displayName: Terraform Apply
               inputs:
                 provider: azurerm
                 command: apply
-                commandOptions: tfplan
+                commandOptions: '$(Pipeline.Workspace)/tfplan/tfplan'
                 environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
+
