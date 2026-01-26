@@ -128,12 +128,15 @@ stages:
               backendAzureRmContainerName: terraform
               backendAzureRmKey: terraform.tfstate
               environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
-              ensureBackend: true   # <-- Ensure Terraform connects to the backend
+              ensureBackend: true
 
-          # Select default workspace (create if missing)
+          # Select the SAME workspace used in Deploy (default if not specified)
           - script: |
-              terraform workspace select prod || terraform workspace new prod
-            displayName: Select Terraform Workspace
+              echo "Listing current workspaces..."
+              terraform workspace list
+              echo "Selecting default workspace used in Deploy..."
+              terraform workspace select default || terraform workspace new default
+            displayName: Select Terraform Workspace Used in Deploy
 
           # Terraform Destroy (reads state from backend)
           - task: TerraformTask@5
