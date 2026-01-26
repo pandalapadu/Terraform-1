@@ -2,8 +2,9 @@ trigger:
 - main
 
 stages:
+# ================= Build Stage =================
 - stage: Build
-  displayName: Terraform Plan
+  displayName: Terraform Build
   jobs:
   - job: Build
     pool:
@@ -12,64 +13,45 @@ stages:
     - checkout: self
 
     - task: TerraformInstaller@1
-      displayName: Terraform Installer
+      displayName: Install Terraform
       inputs:
         terraformVersion: '1.3.10'
 
     - task: TerraformTask@5
-      displayName: Terraform Init
+      displayName: Terraform Validate
       inputs:
         provider: azurerm
-        command: init
-        backendServiceArm: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
-        backendAzureRmStorageAccountName: azdevopsvenkat
-        backendAzureRmContainerName: terraform
-        backendAzureRmKey: terraform.tfstate
+        command: validate
 
     - task: TerraformTask@5
-      displayName: Terraform Plan
+      displayName: Terraform Format
       inputs:
         provider: azurerm
-        command: plan
-        commandOptions: -out=tfplan
+        command: custom
+        customCommand: fmt
+        outputTo: console
         environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
 
-    # Publish plan and lock file
-    - publish: tfplan
-      artifact: tfplan
-    - publish: .terraform.lock.hcl
-      artifact: terraform-lock
-      
-- stage: Release
-  displayName: Terraform Apply
+# ================= Deploy Stage =================
+- stage: Deploy
+  displayName: Terraform Deploy
   dependsOn: Build
   condition: succeeded()
   jobs:
-  - deployment: Apply
-    displayName: Apply to Azure
-    environment: prod   # Approval gate here
+  - deployment: Deploy
+    displayName: Deploy Azure Resources
+    environment: dev  # Optional: approval can be added
     strategy:
       runOnce:
         deploy:
           steps:
           - checkout: self
 
-          # Install Terraform
           - task: TerraformInstaller@1
+            displayName: Install Terraform
             inputs:
               terraformVersion: '1.3.10'
 
-          # Download artifacts from Build stage
-          - download: current
-            artifact: tfplan
-          - download: current
-            artifact: terraform-lock
-
-          # Copy lock file
-          - script: cp $(Pipeline.Workspace)/terraform-lock/.terraform.lock.hcl ./
-            displayName: Copy lock file
-
-          # Init (required for provider consistency)
           - task: TerraformTask@5
             displayName: Terraform Init
             inputs:
@@ -80,11 +62,56 @@ stages:
               backendAzureRmContainerName: terraform
               backendAzureRmKey: terraform.tfstate
 
-          # Apply saved plan
+          - task: TerraformTask@5
+            displayName: Terraform Plan
+            inputs:
+              provider: azurerm
+              command: plan
+              commandOptions: '-out=tfplan'
+              environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
+
           - task: TerraformTask@5
             displayName: Terraform Apply
             inputs:
               provider: azurerm
               command: apply
-              commandOptions: '$(Pipeline.Workspace)/tfplan/tfplan'
+              commandOptions: 'tfplan'
+              environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
+
+# ================= Destroy Stage =================
+- stage: Destroy
+  displayName: Terraform Destroy
+  dependsOn: Deploy
+  condition: succeeded()
+  jobs:
+  - deployment: Destroy
+    displayName: Destroy Azure Resources
+    environment: prod  # Requires manual approval
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: '1.3.10'
+
+          - task: TerraformTask@5
+            displayName: Terraform Init
+            inputs:
+              provider: azurerm
+              command: init
+              backendServiceArm: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
+              backendAzureRmStorageAccountName: azdevopsvenkat
+              backendAzureRmContainerName: terraform
+              backendAzureRmKey: terraform.tfstate
+
+          - task: TerraformTask@5
+            displayName: Terraform Destroy
+            inputs:
+              provider: azurerm
+              command: destroy
+              commandOptions: '-auto-approve'
               environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
