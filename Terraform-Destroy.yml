@@ -25,24 +25,24 @@ stages:
             displayName: Download Terraform Plan
             inputs:
               source: 'specific'
-              project: 'Azdevops-terraform'         # Your project name
-              pipeline: 'azure-pipelines.yml'       # Build pipeline YAML or ID
+              project: 'Azdevops-terraform'         # Your DevOps project name
+              pipeline: 'Terraform-Build'           # The Build pipeline NAME, NOT YAML file
               buildVersionToDownload: 'latest'
               artifact: 'tfplan'
               targetPath: '$(Pipeline.Workspace)/tfplan'
 
-          # Download Terraform lock artifact
+          # Download Terraform lock artifact from Build pipeline
           - task: DownloadPipelineArtifact@2
             displayName: Download Terraform Lock
             inputs:
               source: 'specific'
               project: 'Azdevops-terraform'
-              pipeline: 'azure-pipelines.yml'
+              pipeline: 'Terraform-Build'
               buildVersionToDownload: 'latest'
               artifact: 'terraform-lock'
               targetPath: '$(Pipeline.Workspace)/terraform-lock'
 
-          # Copy lock file
+          # Copy lock file to current working directory
           - script: cp $(Pipeline.Workspace)/terraform-lock/.terraform.lock.hcl ./
             displayName: Copy lock file
 
