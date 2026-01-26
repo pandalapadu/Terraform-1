@@ -1,0 +1,66 @@
+trigger: none
+pr: none
+
+stages:
+- stage: Destroy
+  displayName: Terraform Destroy
+  jobs:
+  - deployment: Destroy
+    displayName: Destroy Azure Resources
+    environment: prod  # Requires manual approval
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+
+          # Install Terraform
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: '1.3.10'
+
+          # Download artifacts from the Build pipeline
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Terraform Plan
+            inputs:
+              source: 'specific'
+              project: 'Azdevops-terraform'        # Your project name
+              pipeline: 'azure-pipelines.yml'      # Your Build pipeline YAML name
+              buildVersionToDownload: 'latest'
+              artifact: 'tfplan'
+              targetPath: '$(Pipeline.Workspace)/tfplan'
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Terraform Lock File
+            inputs:
+              source: 'specific'
+              project: 'Azdevops-terraform'
+              pipeline: 'azure-pipelines.yml'
+              buildVersionToDownload: 'latest'
+              artifact: 'terraform-lock'
+              targetPath: '$(Pipeline.Workspace)/terraform-lock'
+
+          # Copy the lock file to current working directory
+          - script: cp $(Pipeline.Workspace)/terraform-lock/.terraform.lock.hcl ./
+            displayName: Copy lock file
+
+          # Terraform Init
+          - task: TerraformTask@5
+            displayName: Terraform Init
+            inputs:
+              provider: azurerm
+              command: init
+              backendServiceArm: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
+              backendAzureRmStorageAccountName: azdevopsvenkat
+              backendAzureRmContainerName: terraform
+              backendAzureRmKey: terraform.tfstate
+
+          # Terraform Destroy
+          - task: TerraformTask@5
+            displayName: Terraform Destroy
+            inputs:
+              provider: azurerm
+              command: destroy
+              commandOptions: '-auto-approve'
+              environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
