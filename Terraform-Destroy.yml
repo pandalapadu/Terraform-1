@@ -7,7 +7,7 @@ stages:
   jobs:
   - deployment: Destroy
     displayName: Destroy Azure Resources
-    environment: prod  # Requires manual approval
+    environment: prod  # Optional: requires approval
     strategy:
       runOnce:
         deploy:
@@ -20,11 +20,7 @@ stages:
             inputs:
               terraformVersion: '1.3.10'
 
-          # Copy terraform configuration files from repo
-          - script: echo "Using Terraform configuration from repo"
-            displayName: Info
-
-          # Terraform Init (backend points to Azure Storage)
+          # Terraform Init with the same backend used in deploy
           - task: TerraformTask@5
             displayName: Terraform Init
             inputs:
@@ -35,7 +31,7 @@ stages:
               backendAzureRmContainerName: terraform
               backendAzureRmKey: terraform.tfstate
 
-          # Terraform Destroy (uses current state in backend)
+          # Terraform Destroy
           - task: TerraformTask@5
             displayName: Terraform Destroy
             inputs:
