@@ -3,39 +3,36 @@ pr: none
 
 stages:
 - stage: Destroy
-  displayName: Terraform Destroy
+  displayName: Destroy Terraform Resources
   jobs:
-  - deployment: Destroy
-    displayName: Destroy Azure Resources
-    environment: prod  # Optional: requires approval
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - checkout: self
+  - job: Destroy
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - checkout: self
 
-          # Install Terraform
-          - task: TerraformInstaller@1
-            displayName: Install Terraform
-            inputs:
-              terraformVersion: '1.3.10'
+    # Install Terraform
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: '1.3.10'
 
-          # Terraform Init with the same backend used in deploy
-          - task: TerraformTask@5
-            displayName: Terraform Init
-            inputs:
-              provider: azurerm
-              command: init
-              backendServiceArm: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
-              backendAzureRmStorageAccountName: azdevopsvenkat
-              backendAzureRmContainerName: terraform
-              backendAzureRmKey: terraform.tfstate
+    # Terraform Init (same backend as deploy)
+    - task: TerraformTask@5
+      displayName: Terraform Init
+      inputs:
+        provider: azurerm
+        command: init
+        backendServiceArm: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
+        backendAzureRmStorageAccountName: azdevopsvenkat
+        backendAzureRmContainerName: terraform
+        backendAzureRmKey: terraform.tfstate
 
-          # Terraform Destroy
-          - task: TerraformTask@5
-            displayName: Terraform Destroy
-            inputs:
-              provider: azurerm
-              command: destroy
-              commandOptions: '-auto-approve'
-              environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
+    # Terraform Destroy
+    - task: TerraformTask@5
+      displayName: Terraform Destroy
+      inputs:
+        provider: azurerm
+        command: destroy
+        commandOptions: '-auto-approve'
+        environmentServiceNameAzureRM: Billing-Subscription(af504235-2f6d-4469-aa25-251f498730fc)
