@@ -1,0 +1,35 @@
+Module 8: Infrastructure Testing and Validation
+1.Validating Configuration Syntax: Before deploying infrastructure, it’s critical to ensure the configuration files are syntactically correct.
+What this means:
+    Checking Terraform files for errors
+    Ensuring required variables are defined
+    Making sure providers and resources are correctly declared
+Why it matters:
+    Prevents failed deployments
+    Catches mistakes early in the development cycle
+commands: 
+    terraform validate
+    terraform fmt
+2.Implementing Automated Testing for Infrastructure
+Manual testing doesn’t scale well. Automated testing ensures infrastructure behaves consistently across environments.
+Key concepts:
+    Testing infrastructure automatically during builds
+    Verifying resources are created, configured, and destroyed correctly
+Benefits:
+    Faster feedback
+    Reduced human error
+    Reliable deployments
+3.Using Testing Frameworks (e.g., Terratest)
+Terratest is a popular framework used to test Terraform code using Go.
+Why Terratest is useful:
+    Tests real cloud resources
+    Integrates well with CI/CD pipelines
+4.Ensuring Infrastructure Compliance and Security
+Infrastructure must comply with organizational and legal standards.
+Topics covered:
+Enforcing security rules (e.g., no public databases)
+Checking compliance with policies (HIPAA, GDPR, SOC2, etc.)
+Using policy-as-code tools
+
+Outcome:
+how to prevent insecure or non-compliant infrastructure from being deployed.
